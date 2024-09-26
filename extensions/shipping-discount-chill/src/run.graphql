@@ -1,10 +1,18 @@
 query Input {
   cart {
+    cost{
+      totalAmount{
+        amount
+      }
+    }
     deliveryGroups {
       id
       deliveryOptions {
         handle
         title
+        cost {
+          amount
+        }
       }
       selectedDeliveryOption {
         handle

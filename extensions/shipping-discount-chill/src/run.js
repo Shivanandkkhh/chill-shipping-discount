@@ -15,21 +15,21 @@ const EMPTY_DISCOUNT = {
  * @returns {FunctionRunResult}
  */
 export function run(input) {
-  // Define the fixed shipping discount amount
   const fixedShippingDiscount = 4.99;
 
-  console.error('fixedShippingDiscount', fixedShippingDiscount);
-
-  // Check if the cart and delivery groups are defined
   if (!input.cart || !input.cart.deliveryGroups || input.cart.deliveryGroups.length === 0) {
     return EMPTY_DISCOUNT;
   }
 
   const deliveryOptions = [];
+  let totalShippingAmount = 0;
+  let deliveryGroupLengh = 0;
 
-  // Loop through all delivery groups and delivery options
   for (const deliveryGroup of input.cart.deliveryGroups) {
+    deliveryGroupLengh++;
     for (const option of deliveryGroup.deliveryOptions) {
+      const shippingAmount = parseFloat(option.cost.amount);
+      totalShippingAmount += shippingAmount;
       deliveryOptions.push({
         deliveryOption: {
           handle: option.handle,
@@ -38,20 +38,36 @@ export function run(input) {
     }
   }
 
-  // Create a discount for all delivery options with a fixed discount of $4.99
-  const discount = {
-    value: {
-      fixedAmount: {
-        amount: fixedShippingDiscount,
-      },
-    },
-    targets: deliveryOptions, // Apply discount to all delivery options
-    message: "$4.99 off shipping",
-  };
+  const shippingCharge = totalShippingAmount - fixedShippingDiscount;
+  const appliedShippingCharge = (totalShippingAmount - shippingCharge) / deliveryGroupLengh;
+  const cartTotalCost = input.cart.cost.totalAmount.amount;
 
-  console.error('discount', discount);
+
+  let discount;
+
+  if(cartTotalCost < 75){
+     discount = {
+      value: {
+        fixedAmount: {
+          amount: appliedShippingCharge,
+        },
+      },
+      targets: deliveryOptions
+    };  
+  }
+  else{
+     discount = {
+      value: {
+        percentage: {
+          value: 100,
+        },
+      },
+      targets: deliveryOptions,
+      message: `Free shipping`,
+    }; 
+  }
 
   return {
-    discounts: [discount], // Apply discount to all options
+    discounts: [discount],
   };
 }
