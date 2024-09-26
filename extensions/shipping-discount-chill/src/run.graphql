@@ -1,7 +1,15 @@
-query RunInput {
-  discountNode {
-    metafield(namespace: "$app:shipping-discount", key: "function-configuration") {
-      value
+query Input {
+  cart {
+    deliveryGroups {
+      id
+      deliveryOptions {
+        handle
+        title
+      }
+      selectedDeliveryOption {
+        handle
+        title
+      }
     }
   }
 }
