@@ -23,13 +23,12 @@ export function run(input) {
 
   const deliveryOptions = [];
   let totalShippingAmount = 0;
-  let deliveryGroupLengh = 0;
+  let deliveryGroupLength = parseInt(input.cart.deliveryGroups.length);
 
   for (const deliveryGroup of input.cart.deliveryGroups) {
-    deliveryGroupLengh++;
     for (const option of deliveryGroup.deliveryOptions) {
       const shippingAmount = parseFloat(option.cost.amount);
-      totalShippingAmount += shippingAmount;
+      totalShippingAmount += shippingAmount; 
       deliveryOptions.push({
         deliveryOption: {
           handle: option.handle,
@@ -39,17 +38,26 @@ export function run(input) {
   }
 
   const shippingCharge = totalShippingAmount - fixedShippingDiscount;
-  const appliedShippingCharge = (totalShippingAmount - shippingCharge) / deliveryGroupLengh;
-  const cartTotalCost = input.cart.cost.totalAmount.amount;
+  let appliedShippingCharge = (totalShippingAmount - shippingCharge) / deliveryGroupLength;
+  const cartTotalCost = parseFloat(input.cart.cost.totalAmount.amount);
+  
+  if(deliveryGroupLength <= 1){
+    appliedShippingCharge = 0;
+  }
+
+  console.error('deliveryGroupLength', deliveryGroupLength);
+  console.error('totalShippingAmount', totalShippingAmount);
+  console.error('appliedShippingCharge', appliedShippingCharge);
+  console.error('cartTotalCost', cartTotalCost);
 
 
   let discount;
 
-  if(cartTotalCost < 75){
-     discount = {
+  if (cartTotalCost < 1000) {
+    discount = {
       value: {
         fixedAmount: {
-          amount: appliedShippingCharge,
+          amount: appliedShippingCharge.toFixed(2), // Ensure correct decimal formatting
         },
       },
       targets: deliveryOptions
@@ -64,7 +72,7 @@ export function run(input) {
       },
       targets: deliveryOptions,
       message: `Free shipping`,
-    }; 
+    };
   }
 
   return {

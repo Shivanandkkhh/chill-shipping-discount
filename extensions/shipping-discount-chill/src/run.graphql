@@ -4,6 +4,9 @@ query Input {
       totalAmount{
         amount
       }
+      subtotalAmount{
+        amount
+      }
     }
     deliveryGroups {
       id
