@@ -20,50 +20,58 @@ export function run(input) {
   if (!input.cart || !input.cart.deliveryGroups || input.cart.deliveryGroups.length === 0) {
     return EMPTY_DISCOUNT;
   }
-
-  const deliveryOptions = [];
   let totalShippingAmount = 0;
-  let deliveryGroupLength = parseInt(input.cart.deliveryGroups.length);
+  const cartTotalCost = parseFloat(input.cart.cost.subtotalAmount.amount);
 
-  for (const deliveryGroup of input.cart.deliveryGroups) {
-    for (const option of deliveryGroup.deliveryOptions) {
-      const shippingAmount = parseFloat(option.cost.amount);
-      totalShippingAmount += shippingAmount; 
-      deliveryOptions.push({
-        deliveryOption: {
-          handle: option.handle,
-        },
-      });
-    }
+  // total amount - shipping cost for each location / number of locations
+ const threshold = 1000;
+ const deliveryOptions = [];
+ const deliveryOptionsWithAmount = [];
+ for (const deliveryGroup of input.cart.deliveryGroups) {
+  for (const option of deliveryGroup.deliveryOptions) {
+    const shippingAmount = parseFloat(option.cost.amount);
+    totalShippingAmount += shippingAmount; 
+    deliveryOptions.push({
+      deliveryOption: {
+        handle: option.handle
+      },
+    });
+    deliveryOptionsWithAmount.push({
+      deliveryOption: {
+        handle: option.handle,
+        amount: shippingAmount
+      },
+    });
   }
+}
 
-  const shippingCharge = totalShippingAmount - fixedShippingDiscount;
-  let appliedShippingCharge = (totalShippingAmount - shippingCharge) / deliveryGroupLength;
-  const cartTotalCost = parseFloat(input.cart.cost.totalAmount.amount);
-  
-  if(deliveryGroupLength <= 1){
-    appliedShippingCharge = 0;
-  }
+// console.error('totalShippingAmount', totalShippingAmount);
+// console.error('cartTotalCost', cartTotalCost);
+// console.error('thresoldh', threshold);
+// console.error
+const individualPrice = deliveryOptionsWithAmount[0].deliveryOption.amount;
+let applicableDiscountPercentage;
+if(individualPrice > fixedShippingDiscount) {
+   applicableDiscountPercentage = 100 - ((100 / individualPrice) * fixedShippingDiscount);
+ 
+}
+// console.log(individualPrice, "individual Price")
 
-  console.error('deliveryGroupLength', deliveryGroupLength);
-  console.error('totalShippingAmount', totalShippingAmount);
-  console.error('appliedShippingCharge', appliedShippingCharge);
-  console.error('cartTotalCost', cartTotalCost);
+// console.error(applicableDiscountPercentage,'applicableDiscountPercentage');
 
-
-  let discount;
-
-  if (cartTotalCost < 1000) {
-    discount = {
+let discount;
+  if (threshold > cartTotalCost) {
+    discount = { 
       value: {
-        fixedAmount: {
-          amount: appliedShippingCharge.toFixed(2), // Ensure correct decimal formatting
+        percentage: { 
+          value: applicableDiscountPercentage // Ensure correct decimal formatting
         },
       },
       targets: deliveryOptions
     };  
   }
-  else{
+  
+  if(cartTotalCost > threshold){
      discount = {
       value: {
         percentage: {
