@@ -23,7 +23,7 @@ export function run(input) {
   let totalShippingAmount = 0;
   const cartTotalCost = parseFloat(input.cart.cost.subtotalAmount.amount);
 
-  // total amount - shipping cost for each location / number of locations
+  
  const threshold = 1000;
  const deliveryOptions = [];
  const deliveryOptionsWithAmount = [];
@@ -45,29 +45,29 @@ export function run(input) {
   }
 }
 
-// console.error('totalShippingAmount', totalShippingAmount);
-// console.error('cartTotalCost', cartTotalCost);
-// console.error('thresoldh', threshold);
-// console.error
+console.error('totalShippingAmount', totalShippingAmount);
+console.error('cartTotalCost', cartTotalCost);
+console.error('thresoldh', threshold);
 const individualPrice = deliveryOptionsWithAmount[0].deliveryOption.amount;
 let applicableDiscountPercentage;
 if(individualPrice > fixedShippingDiscount) {
    applicableDiscountPercentage = 100 - ((100 / individualPrice) * fixedShippingDiscount);
  
 }
-// console.log(individualPrice, "individual Price")
+console.log(individualPrice, "individual Price")
 
-// console.error(applicableDiscountPercentage,'applicableDiscountPercentage');
+console.error(applicableDiscountPercentage,'applicableDiscountPercentage');
 
 let discount;
   if (threshold > cartTotalCost) {
     discount = { 
       value: {
         percentage: { 
-          value: applicableDiscountPercentage // Ensure correct decimal formatting
+          value: applicableDiscountPercentage,
         },
       },
-      targets: deliveryOptions
+      targets: deliveryOptions,
+      message: `Flat rate`,
     };  
   }
   
